@@ -9,24 +9,11 @@ public class PlayerManager : MonoBehaviour
 
     public Player player;
 
-    public GunSystem gunSystem;
-
-    public static event Action<int> onHittingEnemy;
-
-
-    public void HitEnemy(int id)
-    {
-        if (onHittingEnemy != null)
-        {
-            onHittingEnemy(id);
-        }
-    }
 
     private void Awake()
     {
         instance = this;
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        gunSystem = player.GetComponentInChildren<GunSystem>();
 
     }
 }

@@ -8,6 +8,8 @@ using UnityEditor;
 using System.Timers;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.SceneManagement;
+using JetBrains.Annotations;
+
 public class Player : MonoBehaviour
 {
     private CharacterController characterController;
@@ -75,6 +77,7 @@ public class Player : MonoBehaviour
     {
         playerHealth = new Health(100);
     }
+
     // Update is called once per frame
     void Update()
     {
@@ -105,7 +108,7 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (!firstPersonController.Grounded && characterController.velocity.y < -fallingThreshold)
+        if (/*!firstPersonController.Grounded && */characterController.velocity.y < -fallingThreshold)
         {
             // Player is falling
             wasFalling = true;

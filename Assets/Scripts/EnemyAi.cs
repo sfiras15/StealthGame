@@ -4,7 +4,6 @@ using UnityEngine.AI;
 
 public class EnemyAi: MonoBehaviour
 {
-    [SerializeField] private Enemy enemy;
     [SerializeField] private NavMeshAgent agent;
     [SerializeField] private LayerMask whatIsGround, whatIsPlayer;
     private Transform player;
@@ -23,20 +22,16 @@ public class EnemyAi: MonoBehaviour
     [SerializeField] private float sightRange, attackRange;
     private bool playerInSightRange, playerInAttackRange;
 
+    private bool enemyHit = false;
 
+    // for debugging
+    private bool chasing = false;
+    private bool patrolling = false;
+    private bool attacking = false;
 
-    private void OnEnable()
-    {
-        PlayerManager.onHittingEnemy += Chase;
-    }
-    private void OnDisable()
-    {
-        PlayerManager.onHittingEnemy -= Chase;
-    }
 
     private void Awake()
     {
-        enemy = GetComponent<Enemy>();
         agent = GetComponent<NavMeshAgent>();
     }
     private void Start()
@@ -50,13 +45,16 @@ public class EnemyAi: MonoBehaviour
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
 
-        if (!playerInSightRange && !playerInAttackRange) Patroling();
-        if (playerInSightRange && !playerInAttackRange && !AbilityUI.instance.dashAbility.invisible) ChasePlayer();
+        if (!playerInSightRange && !playerInAttackRange && !enemyHit) Patroling();
+        if ((playerInSightRange && !playerInAttackRange && !AbilityUI.instance.dashAbility.invisible) || enemyHit ) ChasePlayer();
         if (playerInAttackRange && playerInSightRange && !AbilityUI.instance.dashAbility.invisible) AttackPlayer();
     }
 
     private void Patroling()
     {
+        chasing = false;
+        attacking = false;
+        patrolling = true;
         if (agent.remainingDistance <= agent.stoppingDistance) //done with path
         {
             Vector3 point;
@@ -83,19 +81,28 @@ public class EnemyAi: MonoBehaviour
         result = Vector3.zero;
         return false;
     }
-
-    private void Chase(int id)
+    public void Chase()
     {
-        if (enemy.id == id) ChasePlayer();
+        enemyHit = true;
+        Invoke(nameof(ResetEnemyStatus), 5f);
     }
-
+    private void ResetEnemyStatus()
+    {
+        enemyHit = false;
+    }
     private void ChasePlayer()
     {
+        chasing = true;
+        attacking = false;
+        patrolling = false;
         agent.SetDestination(player.position);
     }
 
     private void AttackPlayer()
     {
+        chasing = false;
+        attacking = true;
+        patrolling = false;
         //Make sure enemy doesn't move
         agent.SetDestination(transform.position);
 
@@ -104,9 +111,14 @@ public class EnemyAi: MonoBehaviour
         if (!alreadyAttacked)
         {
             ///Attack code here
-            Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
-            rb.AddForce(transform.forward * 24f, ForceMode.Impulse);
-            rb.AddForce(transform.up * 6f, ForceMode.Impulse);
+            GameObject projectile = ObjectPool.instance.GetPooledObject();
+            projectile.transform.position = transform.position;
+            if (projectile != null)
+            {
+                Rigidbody rb = projectile.GetComponent<Rigidbody>();
+                rb.AddForce(transform.forward * 24f, ForceMode.Impulse);
+                rb.AddForce(transform.up * 6f, ForceMode.Impulse);
+            }
             ///End of attack code
 
             alreadyAttacked = true;

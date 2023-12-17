@@ -7,19 +7,13 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] private HealthBar healthBar;
     private Health enemyHealth;
-    public int id;
-    private void OnEnable()
-    {
-        PlayerManager.onHittingEnemy += EnemyDamaged;
-    }
-    private void OnDisable()
-    {
-        PlayerManager.onHittingEnemy -= EnemyDamaged;
-    }
+    [SerializeField] private EnemyAi enemyAi;
+
     // Start is called before the first frame update
     void Awake()
     {
         enemyHealth = new Health(100);
+        enemyAi = GetComponent<EnemyAi>();
     }
     private void Update()
     {
@@ -28,14 +22,10 @@ public class Enemy : MonoBehaviour
             gameObject.SetActive(false);
         }
     }
-    public void EnemyDamaged(int id)
+    public void EnemyDamaged(int value)
     {
-        if (this.id == id)
-        {
-            enemyHealth.Damage(PlayerManager.instance.gunSystem.GetGunDamage);
-            healthBar.UpdateHealth(enemyHealth.GetMaxHealth, enemyHealth.GetCurrentHealth);
-        }
-        
-
+        enemyHealth.Damage(value);
+        healthBar.UpdateHealth(enemyHealth.GetMaxHealth, enemyHealth.GetCurrentHealth);
+        enemyAi.Chase();
     }
 }

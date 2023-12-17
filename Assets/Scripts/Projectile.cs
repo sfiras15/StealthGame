@@ -14,11 +14,25 @@ public class Projectile : MonoBehaviour
     {
         player = PlayerManager.instance.player;
     }
+    private void OnEnable()
+    {
+        //CancelInvoke();
+        Invoke(nameof(DisableProjectile),3f);
+    }
+    private void OnDisable()
+    {
+        CancelInvoke();
+    }
+    private void DisableProjectile()
+    {
+        gameObject.SetActive(false);
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
             player.PlayerDamaged(projectileDamage);
+            gameObject.SetActive(false);
         }
     }
 }

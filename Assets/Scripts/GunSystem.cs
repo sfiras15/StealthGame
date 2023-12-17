@@ -126,9 +126,9 @@ public class GunSystem : MonoBehaviour
         if (Physics.Raycast(fpsCam.transform.position, direction, out rayHit, range, whatIsEnemy))
         {
             //Debug.Log(rayHit.collider.name);
-
-            if (rayHit.collider.CompareTag("Enemy"))
-                PlayerManager.instance.HitEnemy(rayHit.collider.gameObject.GetComponent<Enemy>().id);
+           
+            if (rayHit.collider.TryGetComponent<Enemy>(out Enemy enemy))
+                enemy.EnemyDamaged(damage);
         }
 
         //ShakeCamera

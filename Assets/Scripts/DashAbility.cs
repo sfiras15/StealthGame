@@ -11,7 +11,6 @@ public class DashAbility : MonoBehaviour
 
     private float initialMoveSpeed;
 
-    private Player player;
 
 
     [Header("Ability Settings")]
@@ -27,7 +26,6 @@ public class DashAbility : MonoBehaviour
     private void Awake()
     {
         firstPersonController = GetComponent<FirstPersonController>();
-        player = GetComponent<Player>();
         initialMoveSpeed = firstPersonController.MoveSpeed;
     }
 
